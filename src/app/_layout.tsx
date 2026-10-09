@@ -1,4 +1,5 @@
 import IconButton from "@/components/ui/IconButton";
+import { COLORS } from "@/constants/colors";
 import { router, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 
@@ -7,14 +8,25 @@ export default function RootLayout() {
     <>
       <StatusBar style="dark" />
 
-      <Stack>
+      <Stack
+        screenOptions={{
+          headerStyle: { backgroundColor: COLORS.primary500 },
+          headerTintColor: COLORS.gray700,
+          contentStyle: { backgroundColor: COLORS.gray700 },
+        }}
+      >
         <Stack.Screen
           name="index"
           options={{
             title: "Your Favorite Places",
             headerShadowVisible: false,
             headerRight: ({ tintColor }) => (
-              <IconButton icon="add" size={24} color={tintColor} onPress={()=>router.push("/add-place")}/>
+              <IconButton
+                icon="add"
+                size={24}
+                color={tintColor}
+                onPress={() => router.push("/add-place")}
+              />
             ),
           }}
         />
