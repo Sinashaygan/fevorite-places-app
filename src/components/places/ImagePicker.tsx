@@ -1,75 +1,130 @@
-import { Alert, Button, Image, StyleSheet, Text, View } from "react-native";
+import { COLORS } from "@/constants/colors";
 import {
   launchCameraAsync,
   useCameraPermissions,
-  PermissionStatus,
 } from "expo-image-picker";
 import { useState } from "react";
-import { COLORS } from "@/constants/colors";
+import { Alert, Image, Pressable, StyleSheet, Text, View } from "react-native";
 
-export default function ImagePicker() {
+type ImagePickerProps = {
+  onImagePicked: (imageUri: string) => void;
+};
+
+export default function ImagePicker({ onImagePicked }: ImagePickerProps) {
   const [cameraPermissionInformation, requestPermission] =
     useCameraPermissions();
-    const [pickedImage , setPickedImage] = useState()
+  const [pickedImage, setPickedImage] = useState<string | null>(null);
 
   async function verifyPermission() {
-    if (cameraPermissionInformation?.status === PermissionStatus.UNDETERMINED) {
+    if (cameraPermissionInformation?.granted) {
+      return true;
+    }
+
+    if (
+      !cameraPermissionInformation ||
+      cameraPermissionInformation.canAskAgain
+    ) {
       const permissionResponse = await requestPermission();
       return permissionResponse.granted;
     }
 
-    if (cameraPermissionInformation?.status === PermissionStatus.DENIED) {
-      Alert.alert(
-        "Insufficient Permissions!",
-        "You need to grant camera permissions to use this app.",
-      );
-      return false;
-    }
-
-    return true;
+    Alert.alert(
+      "Insufficient Permissions",
+      "Camera permission is required to take a place photo. Enable it in your device settings.",
+    );
+    return false;
   }
 
   async function takeImageHandler() {
     const hasPermission = await verifyPermission();
 
-    if (!hasPermission) return;
+    if (!hasPermission) {
+      return;
+    }
 
-    const image = await launchCameraAsync({
-      allowsEditing: true,
-      aspect: [16, 9],
-      quality: 0.5,
-    });
+    try {
+      const result = await launchCameraAsync({
+        allowsEditing: true,
+        aspect: [16, 9],
+        quality: 0.5,
+      });
 
-    setPickedImage(image.uri)
-  }
-  
-  let imagePreview = <Text>No image taken yet.</Text>;
+      if (result.canceled) {
+        return;
+      }
 
-  if (pickedImage) {
-    imagePreview = <Image source={{ uri: pickedImage }} style={styles.image}/>;
+      const imageUri = result.assets[0]?.uri;
+
+      if (!imageUri) {
+        Alert.alert("Image unavailable", "The captured image could not be read.");
+        return;
+      }
+
+      setPickedImage(imageUri);
+      onImagePicked(imageUri);
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "The camera could not be opened. Please try again.";
+      Alert.alert("Camera error", message);
+    }
   }
 
   return (
     <View>
-      <View style={styles.imagePreview}>{imagePreview}</View>
-      <Button title="Take Image" onPress={takeImageHandler} />
+      <View style={styles.imagePreview}>
+        {pickedImage ? (
+          <Image source={{ uri: pickedImage }} style={styles.image} />
+        ) : (
+          <Text style={styles.placeholderText}>No image taken yet.</Text>
+        )}
+      </View>
+
+      <Pressable
+        accessibilityRole="button"
+        onPress={takeImageHandler}
+        style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+      >
+        <Text style={styles.buttonText}>Take Image</Text>
+      </Pressable>
     </View>
   );
-
 }
 
 const styles = StyleSheet.create({
   imagePreview: {
     width: "100%",
     height: 200,
-    marginVertical: 8,
+    marginVertical: 12,
     justifyContent: "center",
     alignItems: "center",
+    overflow: "hidden",
     backgroundColor: COLORS.primary100,
-    borderRadius: 4,
+    borderRadius: 10,
   },
   image: {
     width: "100%",
     height: "100%",
+  },
+  placeholderText: {
+    color: COLORS.gray700,
+    fontSize: 15,
+  },
+  button: {
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: COLORS.primary500,
+    borderRadius: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  pressed: {
+    opacity: 0.7,
+  },
+  buttonText: {
+    color: COLORS.primary500,
+    fontSize: 15,
+    fontWeight: "700",
   },
 });
