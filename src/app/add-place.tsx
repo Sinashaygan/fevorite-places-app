@@ -2,7 +2,10 @@ import PlaceForm from "@/components/places/PlaceForm";
 import type { Place } from "@/types/place";
 import { Alert, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
 
-type PendingPlace = Pick<Place, "title" | "address" | "imageUri">;
+type PendingPlace = Pick<
+  Place,
+  "title" | "address" | "imageUri" | "location"
+>;
 
 export default function AddPlace() {
   function createPlaceHandler(place: PendingPlace) {
