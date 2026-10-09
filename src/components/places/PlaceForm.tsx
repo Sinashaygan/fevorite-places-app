@@ -1,6 +1,5 @@
 import { COLORS } from "@/constants/colors";
-import type { Place } from "@/types/place";
-import { router } from "expo-router";
+import type { Place, PlaceLocation } from "@/types/place";
 import { useState } from "react";
 import {
   Alert,
@@ -13,8 +12,12 @@ import {
 } from "react-native";
 
 import ImagePicker from "./ImagePicker";
+import LocationPicker from "./LocationPicker";
 
-type PlaceFormValues = Pick<Place, "title" | "address" | "imageUri">;
+type PlaceFormValues = Pick<
+  Place,
+  "title" | "address" | "imageUri" | "location"
+>;
 
 type PlaceFormProps = {
   onCreatePlace: (values: PlaceFormValues) => void;
@@ -24,13 +27,18 @@ export default function PlaceForm({ onCreatePlace }: PlaceFormProps) {
   const [enteredTitle, setEnteredTitle] = useState("");
   const [enteredAddress, setEnteredAddress] = useState("");
   const [selectedImageUri, setSelectedImageUri] = useState("");
+  const [selectedLocation, setSelectedLocation] =
+    useState<PlaceLocation | null>(null);
 
   function savePlaceHandler() {
     const title = enteredTitle.trim();
     const address = enteredAddress.trim();
 
-    if (!title || !address) {
-      Alert.alert("Missing information", "Please enter a title and address.");
+    if (!title || !address || !selectedLocation) {
+      Alert.alert(
+        "Missing information",
+        "Please enter a title and address, then select your current location.",
+      );
       return;
     }
 
@@ -38,6 +46,7 @@ export default function PlaceForm({ onCreatePlace }: PlaceFormProps) {
       title,
       address,
       imageUri: selectedImageUri,
+      location: selectedLocation,
     });
   }
 
@@ -77,16 +86,7 @@ export default function PlaceForm({ onCreatePlace }: PlaceFormProps) {
 
       <ImagePicker onImagePicked={setSelectedImageUri} />
 
-      <Pressable
-        accessibilityRole="button"
-        onPress={() => router.push("/map")}
-        style={({ pressed }) => [
-          styles.secondaryButton,
-          pressed && styles.buttonPressed,
-        ]}
-      >
-        <Text style={styles.secondaryButtonText}>Choose on Map</Text>
-      </Pressable>
+      <LocationPicker onPickLocation={setSelectedLocation} />
 
       <Pressable
         accessibilityRole="button"
@@ -133,20 +133,6 @@ const styles = StyleSheet.create({
   },
   addressInput: {
     minHeight: 104,
-  },
-  secondaryButton: {
-    alignItems: "center",
-    marginTop: 16,
-    borderWidth: 1,
-    borderColor: COLORS.primary500,
-    borderRadius: 10,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  secondaryButtonText: {
-    color: COLORS.primary500,
-    fontSize: 15,
-    fontWeight: "700",
   },
   primaryButton: {
     alignItems: "center",
