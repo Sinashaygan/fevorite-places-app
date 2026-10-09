@@ -2,6 +2,7 @@ import type { Place } from "@/types/place";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 
 import PlaceItem from "./PlaceItem";
+import { COLORS } from "@/constants/colors";
 
 type PlacesListProps = {
   places: Place[];
@@ -47,7 +48,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   emptyText: {
-    color: "#334155",
+    color: COLORS.primary200,
     fontSize: 18,
     fontWeight: "700",
     lineHeight: 26,
