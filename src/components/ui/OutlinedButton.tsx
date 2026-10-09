@@ -1,55 +1,72 @@
+import { Ionicons } from "@expo/vector-icons";
 import type { ComponentProps, ReactNode } from "react";
 import { Pressable, StyleSheet, Text } from "react-native";
 import type { PressableProps } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+
 import { COLORS } from "@/constants/colors";
 
 type OutlinedButtonProps = {
   onPress: NonNullable<PressableProps["onPress"]>;
   icon: ComponentProps<typeof Ionicons>["name"];
   children: ReactNode;
+  disabled?: boolean;
 };
 
 export default function OutlinedButton({
   onPress,
   icon,
   children,
+  disabled = false,
 }: OutlinedButtonProps) {
   return (
     <Pressable
-      style={({ pressed }) => [styles.button, pressed && styles.pressed]}
-      onPress={onPress}
       accessibilityRole="button"
+      accessibilityState={{ disabled }}
+      disabled={disabled}
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.button,
+        pressed && !disabled && styles.pressed,
+        disabled && styles.disabled,
+      ]}
     >
       <Ionicons
-        style={styles.icon}
+        color={disabled ? COLORS.primary200 : COLORS.primary500}
         name={icon}
         size={18}
-        color={COLORS.primary500}
+        style={styles.icon}
       />
-      <Text style={styles.text}>{children}</Text>
+      <Text style={[styles.text, disabled && styles.disabledText]}>
+        {children}
+      </Text>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   button: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    margin: 4,
     flexDirection: "row",
-    justifyContent: "center",
     alignItems: "center",
+    justifyContent: "center",
+    margin: 4,
     borderWidth: 1,
     borderColor: COLORS.primary500,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
   },
   pressed: {
     opacity: 0.7,
+  },
+  disabled: {
+    opacity: 0.65,
   },
   icon: {
     marginRight: 6,
   },
   text: {
     color: COLORS.primary500,
+  },
+  disabledText: {
+    color: COLORS.primary200,
   },
 });
