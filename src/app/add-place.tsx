@@ -1,3 +1,5 @@
+import ImagePicker from "@/components/places/ImagePicker";
+import { COLORS } from "@/constants/colors";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
@@ -42,10 +44,6 @@ export default function AddPlace() {
         keyboardShouldPersistTaps="handled"
       >
         <Text style={styles.heading}>Add a favorite place</Text>
-        <Text style={styles.description}>
-          Add the basic details now. Image and map selection are ready for the
-          next step.
-        </Text>
 
         <View style={styles.fieldGroup}>
           <Text style={styles.label}>Place title</Text>
@@ -74,7 +72,7 @@ export default function AddPlace() {
         </View>
 
         <View style={styles.secondaryActions}>
-          <Pressable
+          {/* <Pressable
             onPress={handleChooseImage}
             style={({ pressed }) => [
               styles.secondaryButton,
@@ -82,7 +80,9 @@ export default function AddPlace() {
             ]}
           >
             <Text style={styles.secondaryButtonText}>Choose Image</Text>
-          </Pressable>
+          </Pressable> */}
+
+          <ImagePicker/>
 
           <Pressable
             onPress={() => router.push("/map")}
@@ -118,16 +118,9 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   heading: {
-    color: "#0f172a",
+    color: COLORS.primary500,
+    fontWeight: "bold",
     fontSize: 26,
-    fontWeight: "800",
-  },
-  description: {
-    marginTop: 8,
-    marginBottom: 28,
-    color: "#64748b",
-    fontSize: 15,
-    lineHeight: 22,
   },
   fieldGroup: {
     marginBottom: 20,
@@ -139,14 +132,13 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   input: {
-    borderWidth: 1,
-    borderColor: "#cbd5e1",
-    borderRadius: 12,
-    backgroundColor: "#ffffff",
-    color: "#0f172a",
+    marginVertical: 8,
+    paddingHorizontal: 4,
+    paddingVertical: 8,
     fontSize: 16,
-    paddingHorizontal: 14,
-    paddingVertical: 13,
+    borderBottomColor: COLORS.primary700,
+    borderBottomWidth: 2,
+    backgroundColor: COLORS.primary100,
   },
   addressInput: {
     minHeight: 104,
