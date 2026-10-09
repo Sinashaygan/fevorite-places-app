@@ -29,8 +29,9 @@ export default function LocationPicker({
 }: LocationPickerProps) {
   const [locationPermissionInformation, requestPermission] =
     useForegroundPermissions();
-  const [pickedLocation, setPickedLocation] =
-    useState<PlaceLocation | null>(null);
+  const [pickedLocation, setPickedLocation] = useState<PlaceLocation | null>(
+    null,
+  );
   const [isLocating, setIsLocating] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
   const isRequestInProgress = useRef(false);
@@ -144,7 +145,7 @@ export default function LocationPicker({
           <LocationMap location={pickedLocation} />
         ) : (
           <Text style={styles.placeholderText}>
-            هنوز موقعیتی انتخاب نشده است
+            No position has been selected yet.
           </Text>
         )}
       </View>
