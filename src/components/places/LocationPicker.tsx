@@ -19,6 +19,7 @@ import {
 
 import OutlinedButton from "../ui/OutlinedButton";
 import LocationMap from "./LocationMap";
+import { router } from "expo-router";
 
 type LocationPickerProps = {
   onPickLocation: (location: PlaceLocation) => void;
@@ -138,6 +139,11 @@ export default function LocationPicker({
     }
   }
 
+  function pickOnMapHandler() {
+    router.push("/map");
+  }
+
+
   return (
     <View style={styles.container}>
       <View style={styles.mapPreview}>
@@ -172,8 +178,16 @@ export default function LocationPicker({
           {isLocating ? "Locating…" : "Locate User"}
         </OutlinedButton>
         {isLocating && (
-          <ActivityIndicator color={COLORS.primary500} size="small" />
+          <ActivityIndicator
+            color={COLORS.primary500}
+            size="small"
+            style={styles.locationLoading}
+          />
         )}
+
+        <OutlinedButton icon="map" onPress={pickOnMapHandler}>
+          Pick on Map
+        </OutlinedButton>
       </View>
     </View>
   );
@@ -213,7 +227,11 @@ const styles = StyleSheet.create({
   actions: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "space-between",
+    gap: 12,
     marginTop: 8,
+  },
+  locationLoading: {
+    marginTop: 10,
   },
 });
