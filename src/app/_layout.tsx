@@ -1,4 +1,5 @@
-import { Stack } from "expo-router";
+import IconButton from "@/components/ui/IconButton";
+import { router, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 
 export default function RootLayout() {
@@ -12,6 +13,9 @@ export default function RootLayout() {
           options={{
             title: "Your Favorite Places",
             headerShadowVisible: false,
+            headerRight: ({ tintColor }) => (
+              <IconButton icon="add" size={24} color={tintColor} onPress={()=>router.push("/add-place")}/>
+            ),
           }}
         />
 
