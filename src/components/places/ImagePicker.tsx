@@ -1,10 +1,8 @@
 import { COLORS } from "@/constants/colors";
-import {
-  launchCameraAsync,
-  useCameraPermissions,
-} from "expo-image-picker";
+import { launchCameraAsync, useCameraPermissions } from "expo-image-picker";
 import { useState } from "react";
-import { Alert, Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, Image, StyleSheet, Text, View } from "react-native";
+import OutlinedButton from "../ui/OutlinedButton";
 
 type ImagePickerProps = {
   onImagePicked: (imageUri: string) => void;
@@ -56,7 +54,10 @@ export default function ImagePicker({ onImagePicked }: ImagePickerProps) {
       const imageUri = result.assets[0]?.uri;
 
       if (!imageUri) {
-        Alert.alert("Image unavailable", "The captured image could not be read.");
+        Alert.alert(
+          "Image unavailable",
+          "The captured image could not be read.",
+        );
         return;
       }
 
@@ -81,13 +82,7 @@ export default function ImagePicker({ onImagePicked }: ImagePickerProps) {
         )}
       </View>
 
-      <Pressable
-        accessibilityRole="button"
-        onPress={takeImageHandler}
-        style={({ pressed }) => [styles.button, pressed && styles.pressed]}
-      >
-        <Text style={styles.buttonText}>Take Image</Text>
-      </Pressable>
+      <OutlinedButton icon="camera" onPress={takeImageHandler}>Take image</OutlinedButton>
     </View>
   );
 }
