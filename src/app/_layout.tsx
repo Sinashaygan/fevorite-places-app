@@ -11,6 +11,7 @@ export default function RootLayout() {
           name="index"
           options={{
             title: "Your Favorite Places",
+            headerShadowVisible: false,
           }}
         />
 
