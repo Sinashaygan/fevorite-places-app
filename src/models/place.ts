@@ -4,14 +4,14 @@ export default class Place implements PlaceType {
   id: string;
   title: string;
   imageUri: string;
-  address: string;
+  address?: string;
   location: PlaceType["location"];
 
   constructor(
     title: string,
     imageUri: string,
-    address: string,
-    location: PlaceType["location"],
+    address?: string,
+    location?: PlaceType["location"],
   ) {
     this.id = `${Date.now()}-${Math.random()}`;
     this.title = title;

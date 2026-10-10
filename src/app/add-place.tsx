@@ -1,6 +1,7 @@
 import PlaceForm from "@/components/places/PlaceForm";
 import { usePlaces } from "@/context/PlacesContext";
 import type { Place } from "@/types/place";
+import { router } from "expo-router";
 import { KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
 
 type PendingPlace = Pick<
@@ -13,6 +14,7 @@ export default function AddPlace() {
 
   function createPlaceHandler(place: PendingPlace) {
     addPlace(place);
+    router.replace("/");
   }
 
   return (
