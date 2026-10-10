@@ -1,9 +1,10 @@
 import PlaceForm from "@/components/places/PlaceForm";
 import { usePlaces } from "@/context/PlacesContext";
 import type { Place } from "@/types/place";
-import { router, useNavigation } from "expo-router";
-import { useEffect } from "react";
-import { KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
+import { insertPlace } from "@/utils/database";
+import { router, Stack, useNavigation } from "expo-router";
+import { useEffect, useRef, useState } from "react";
+import { Alert, KeyboardAvoidingView, Platform, StyleSheet, View } from "react-native";
 
 type PendingPlace = Pick<
   Place,
@@ -13,17 +14,43 @@ type PendingPlace = Pick<
 export default function AddPlace() {
   const { addPlace, resetDraft } = usePlaces();
   const navigation = useNavigation();
+  const savingRef = useRef(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    return navigation.addListener("beforeRemove", () => {
+    return navigation.addListener("beforeRemove", (event) => {
+      if (savingRef.current) {
+        event.preventDefault();
+        return;
+      }
       resetDraft();
     });
   }, [navigation, resetDraft]);
 
-  function createPlaceHandler(place: PendingPlace) {
-    addPlace(place);
-    resetDraft();
-    router.replace("/");
+  async function createPlaceHandler(place: PendingPlace) {
+    if (savingRef.current) return;
+    savingRef.current = true;
+    setIsSaving(true);
+    try {
+      const savedPlace = {
+        ...place,
+        address: place.address?.trim() || "Address unavailable",
+      };
+      const id = await insertPlace(savedPlace);
+      addPlace({ ...savedPlace, id: String(id) });
+      resetDraft();
+      savingRef.current = false;
+      router.replace("/");
+    } catch (error) {
+      console.error("Failed to save place:", error);
+      Alert.alert(
+        "Unable to save place",
+        error instanceof Error ? error.message : "Please try again.",
+      );
+    } finally {
+      savingRef.current = false;
+      setIsSaving(false);
+    }
   }
 
   return (
@@ -31,7 +58,10 @@ export default function AddPlace() {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       style={styles.screen}
     >
-      <PlaceForm onCreatePlace={createPlaceHandler} />
+      <Stack.Screen options={{ gestureEnabled: !isSaving, headerBackVisible: !isSaving }} />
+      <View style={styles.screen} pointerEvents={isSaving ? "none" : "auto"}>
+        <PlaceForm onCreatePlace={createPlaceHandler} isSaving={isSaving} />
+      </View>
     </KeyboardAvoidingView>
   );
 }
