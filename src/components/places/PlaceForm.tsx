@@ -1,6 +1,7 @@
 import { COLORS } from "@/constants/colors";
+import { usePlaces } from "@/context/PlacesContext";
 import type { Place, PlaceLocation } from "@/types/place";
-import { useState } from "react";
+import { useCallback } from "react";
 import {
   Alert,
   Pressable,
@@ -24,11 +25,24 @@ type PlaceFormProps = {
 };
 
 export default function PlaceForm({ onCreatePlace }: PlaceFormProps) {
-  const [enteredTitle, setEnteredTitle] = useState("");
-  const [enteredAddress, setEnteredAddress] = useState("");
-  const [selectedImageUri, setSelectedImageUri] = useState("");
-  const [selectedLocation, setSelectedLocation] =
-    useState<PlaceLocation | null>(null);
+  const { draft, updateDraft } = usePlaces();
+  const enteredTitle = draft.title;
+  const enteredAddress = draft.address ?? "";
+  const selectedImageUri = draft.imageUri;
+  const selectedLocation = draft.location;
+
+  const setEnteredTitle = useCallback((title: string) => {
+    updateDraft({ title });
+  }, [updateDraft]);
+  const setEnteredAddress = useCallback((address: string) => {
+    updateDraft({ address });
+  }, [updateDraft]);
+  const setSelectedImageUri = useCallback((imageUri: string) => {
+    updateDraft({ imageUri });
+  }, [updateDraft]);
+  const setSelectedLocation = useCallback((location: PlaceLocation) => {
+    updateDraft({ location });
+  }, [updateDraft]);
 
   function savePlaceHandler() {
     const title = enteredTitle.trim();
@@ -87,6 +101,7 @@ export default function PlaceForm({ onCreatePlace }: PlaceFormProps) {
       <ImagePicker onImagePicked={setSelectedImageUri} imageUri={selectedImageUri}/>
 
       <LocationPicker
+        location={selectedLocation}
         onPickLocation={setSelectedLocation}
         onAddressFound={setEnteredAddress}
       />
