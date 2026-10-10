@@ -1,6 +1,7 @@
 import PlaceForm from "@/components/places/PlaceForm";
+import { usePlaces } from "@/context/PlacesContext";
 import type { Place } from "@/types/place";
-import { Alert, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
+import { KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
 
 type PendingPlace = Pick<
   Place,
@@ -8,11 +9,10 @@ type PendingPlace = Pick<
 >;
 
 export default function AddPlace() {
+  const { addPlace } = usePlaces();
+
   function createPlaceHandler(place: PendingPlace) {
-    Alert.alert(
-      "Place ready",
-      `${place.title} is ready to be connected to app storage.`,
-    );
+    addPlace(place);
   }
 
   return (

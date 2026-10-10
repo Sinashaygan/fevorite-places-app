@@ -2,10 +2,10 @@ import { router } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import PlacesList from "@/components/places/PlacesList";
-import type { Place } from "@/types/place";
+import { usePlaces } from "@/context/PlacesContext";
 
 export default function AllPlaces() {
-  const places: Place[] = [];
+  const { places } = usePlaces();
 
   function handleSelectPlace(id: string) {
     router.push({
