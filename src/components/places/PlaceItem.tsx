@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     overflow: "hidden",
     borderRadius: 16,
-    backgroundColor: COLORS.surface,
+    backgroundColor: COLORS.primary500,
     borderWidth: 1,
     borderColor: COLORS.border,
     shadowColor: "#000000",
