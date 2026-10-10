@@ -1,4 +1,5 @@
 import type { Place } from "@/types/place";
+import { COLORS } from "@/constants/colors";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 type PlaceItemProps = {
@@ -43,7 +44,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     overflow: "hidden",
     borderRadius: 16,
-    backgroundColor: "#ffffff",
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
     shadowColor: "#000000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -76,13 +79,13 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   title: {
-    color: "#0f172a",
+    color: COLORS.text,
     fontSize: 18,
     fontWeight: "700",
   },
   address: {
     marginTop: 8,
-    color: "#64748b",
+    color: COLORS.muted,
     fontSize: 14,
     lineHeight: 20,
   },
