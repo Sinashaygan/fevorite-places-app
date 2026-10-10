@@ -2,6 +2,7 @@ import { router } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import PlacesList from "@/components/places/PlacesList";
+import { COLORS } from "@/constants/colors";
 import { usePlaces } from "@/context/PlacesContext";
 
 export default function AllPlaces() {
@@ -44,19 +45,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 24,
     paddingBottom: 16,
-    backgroundColor: "#f8fafc",
+    backgroundColor: COLORS.gray700,
   },
   headingContainer: {
     marginBottom: 16,
   },
   heading: {
-    color: "#0f172a",
+    color: COLORS.text,
     fontSize: 26,
     fontWeight: "800",
   },
   description: {
     marginTop: 6,
-    color: "#64748b",
+    color: COLORS.muted,
     fontSize: 15,
     lineHeight: 22,
   },
@@ -66,7 +67,7 @@ const styles = StyleSheet.create({
   button: {
     alignItems: "center",
     borderRadius: 12,
-    backgroundColor: "#2563eb",
+    backgroundColor: COLORS.primary500,
     paddingHorizontal: 20,
     paddingVertical: 14,
   },
@@ -74,7 +75,7 @@ const styles = StyleSheet.create({
     opacity: 0.78,
   },
   buttonText: {
-    color: "#ffffff",
+    color: COLORS.gray700,
     fontSize: 16,
     fontWeight: "700",
   },
