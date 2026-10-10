@@ -7,7 +7,7 @@ import {
   hasServicesEnabledAsync,
   useForegroundPermissions,
 } from "expo-location";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -19,7 +19,7 @@ import {
 
 import OutlinedButton from "../ui/OutlinedButton";
 import LocationMap from "./LocationMap";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 
 type LocationPickerProps = {
   onPickLocation: (location: PlaceLocation) => void;
@@ -36,6 +36,30 @@ export default function LocationPicker({
   const [isLocating, setIsLocating] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
   const isRequestInProgress = useRef(false);
+  const { pickedLat, pickedLng } = useLocalSearchParams<{
+    pickedLat?: string;
+    pickedLng?: string;
+  }>();
+
+  useEffect(() => {
+    if (!pickedLat || !pickedLng) {
+      return;
+    }
+
+    const location: PlaceLocation = {
+      latitude: Number(pickedLat),
+      longitude: Number(pickedLng),
+    };
+
+    if (!isValidPlaceLocation(location)) {
+      setLocationError("The selected coordinates are invalid.");
+      return;
+    }
+
+    setPickedLocation(location);
+    onPickLocation(location);
+  }, [pickedLat, pickedLng, onPickLocation]);
+
 
   function openAppSettings() {
     void Linking.openSettings().catch(() => {
