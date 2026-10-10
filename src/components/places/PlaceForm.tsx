@@ -22,9 +22,10 @@ type PlaceFormValues = Pick<
 
 type PlaceFormProps = {
   onCreatePlace: (values: PlaceFormValues) => void;
+  isSaving?: boolean;
 };
 
-export default function PlaceForm({ onCreatePlace }: PlaceFormProps) {
+export default function PlaceForm({ onCreatePlace, isSaving = false }: PlaceFormProps) {
   const { draft, updateDraft } = usePlaces();
   const enteredTitle = draft.title;
   const enteredAddress = draft.address ?? "";
@@ -45,6 +46,7 @@ export default function PlaceForm({ onCreatePlace }: PlaceFormProps) {
   }, [updateDraft]);
 
   function savePlaceHandler() {
+    if (isSaving) return;
     const title = enteredTitle.trim();
     const address = enteredAddress.trim();
 
@@ -53,6 +55,11 @@ export default function PlaceForm({ onCreatePlace }: PlaceFormProps) {
         "Missing information",
         "Please enter a title for this place.",
       );
+      return;
+    }
+
+    if (!selectedLocation) {
+      Alert.alert("Missing location", "Please select a location before saving this place.");
       return;
     }
 
@@ -108,13 +115,15 @@ export default function PlaceForm({ onCreatePlace }: PlaceFormProps) {
 
       <Pressable
         accessibilityRole="button"
+        accessibilityState={{ disabled: isSaving, busy: isSaving }}
+        disabled={isSaving}
         onPress={savePlaceHandler}
         style={({ pressed }) => [
           styles.primaryButton,
           pressed && styles.buttonPressed,
         ]}
       >
-        <Text style={styles.primaryButtonText}>Add Place</Text>
+        <Text style={styles.primaryButtonText}>{isSaving ? "Saving…" : "Add Place"}</Text>
       </Pressable>
     </ScrollView>
   );
