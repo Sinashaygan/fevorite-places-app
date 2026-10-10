@@ -7,6 +7,6 @@ export type Place = {
   id: string;
   title: string;
   imageUri: string;
-  address: string;
-  location: PlaceLocation;
+  address?: string;
+  location?: PlaceLocation;
 };
