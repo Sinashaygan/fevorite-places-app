@@ -34,19 +34,19 @@ export default function PlaceForm({ onCreatePlace }: PlaceFormProps) {
     const title = enteredTitle.trim();
     const address = enteredAddress.trim();
 
-    if (!title || !address || !selectedLocation) {
+    if (!title) {
       Alert.alert(
         "Missing information",
-        "Please enter a title and address, then select your current location.",
+        "Please enter a title for this place.",
       );
       return;
     }
 
     onCreatePlace({
       title,
-      address,
+      address: address || undefined,
       imageUri: selectedImageUri,
-      location: selectedLocation,
+      location: selectedLocation || undefined,
     });
   }
 

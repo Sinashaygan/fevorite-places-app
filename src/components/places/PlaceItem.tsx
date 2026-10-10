@@ -31,7 +31,7 @@ export default function PlaceItem({ place, onSelect }: PlaceItemProps) {
           {place.title}
         </Text>
         <Text numberOfLines={2} style={styles.address}>
-          {place.address}
+          {place.address || "No address added"}
         </Text>
       </View>
     </Pressable>
