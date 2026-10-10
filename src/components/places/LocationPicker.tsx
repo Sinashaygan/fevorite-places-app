@@ -19,7 +19,7 @@ import {
 
 import OutlinedButton from "../ui/OutlinedButton";
 import LocationMap from "./LocationMap";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useIsFocused, useLocalSearchParams } from "expo-router";
 
 type LocationPickerProps = {
   onPickLocation: (location: PlaceLocation) => void;
@@ -36,6 +36,7 @@ export default function LocationPicker({
   const [isLocating, setIsLocating] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
   const isRequestInProgress = useRef(false);
+  const isFocused = useIsFocused()
   const { pickedLat, pickedLng } = useLocalSearchParams<{
     pickedLat?: string;
     pickedLng?: string;
@@ -46,19 +47,21 @@ export default function LocationPicker({
       return;
     }
 
-    const location: PlaceLocation = {
-      latitude: Number(pickedLat),
-      longitude: Number(pickedLng),
-    };
+    if(isFocused && pickedLat && pickedLng){
+      const location: PlaceLocation = {
+        latitude: Number(pickedLat),
+        longitude: Number(pickedLng),
+      };
 
-    if (!isValidPlaceLocation(location)) {
-      setLocationError("The selected coordinates are invalid.");
-      return;
+      if (!isValidPlaceLocation(location)) {
+        setLocationError("The selected coordinates are invalid.");
+        return;
+      }
+
+      setPickedLocation(location);
+      onPickLocation(location);
     }
-
-    setPickedLocation(location);
-    onPickLocation(location);
-  }, [pickedLat, pickedLng, onPickLocation]);
+  }, [pickedLat, pickedLng, onPickLocation , isFocused]);
 
 
   function openAppSettings() {
