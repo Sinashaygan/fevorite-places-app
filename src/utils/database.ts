@@ -1,5 +1,9 @@
-import { Place } from "@/types/place";
+import type { Place } from "@/types/place";
 import * as SQLite from "expo-sqlite";
+
+type NewPlace = Pick<Place, "title" | "imageUri" | "location"> & {
+  address?: string;
+};
 
 const databasePromise = SQLite.openDatabaseAsync("places.db");
 
@@ -8,7 +12,7 @@ export async function init() {
 
   await database.execAsync(`
     CREATE TABLE IF NOT EXISTS places (
-      id INTEGER PRIMARY KEY NOT NULL,
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
       title TEXT NOT NULL,
       imageUri TEXT NOT NULL,
       address TEXT,
@@ -20,7 +24,7 @@ export async function init() {
   return database;
 }
 
-export async function insertPlace(place: Place) {
+export async function insertPlace(place: NewPlace) {
   const database = await databasePromise;
 
   if (!place.location) {

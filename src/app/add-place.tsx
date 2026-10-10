@@ -1,6 +1,7 @@
 import PlaceForm from "@/components/places/PlaceForm";
 import { usePlaces } from "@/context/PlacesContext";
 import type { Place } from "@/types/place";
+import { insertPlace } from "@/utils/database";
 import { router, useNavigation } from "expo-router";
 import { useEffect } from "react";
 import { KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
@@ -20,7 +21,8 @@ export default function AddPlace() {
     });
   }, [navigation, resetDraft]);
 
-  function createPlaceHandler(place: PendingPlace) {
+  async function createPlaceHandler(place: PendingPlace) {
+    await insertPlace(place)
     addPlace(place);
     resetDraft();
     router.replace("/");
