@@ -7,7 +7,7 @@ import {
   hasServicesEnabledAsync,
   useForegroundPermissions,
 } from "expo-location";
-import { router, useIsFocused, useLocalSearchParams } from "expo-router";
+import { router, useIsFocused } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -22,20 +22,18 @@ import OutlinedButton from "../ui/OutlinedButton";
 import LocationMap from "./LocationMap";
 
 type LocationPickerProps = {
+  location?: PlaceLocation;
   onPickLocation: (location: PlaceLocation) => void;
   onAddressFound?: (address: string) => void;
 };
 
 export default function LocationPicker({
+  location: pickedLocation,
   onPickLocation,
   onAddressFound,
 }: LocationPickerProps) {
   const [locationPermissionInformation, requestPermission] =
     useForegroundPermissions();
-
-  const [pickedLocation, setPickedLocation] = useState<PlaceLocation | null>(
-    null,
-  );
 
   const [isLocating, setIsLocating] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
@@ -43,33 +41,10 @@ export default function LocationPicker({
   const isRequestInProgress = useRef(false);
   const isFocused = useIsFocused();
 
-  const { pickedLat, pickedLng } = useLocalSearchParams<{
-    pickedLat?: string;
-    pickedLng?: string;
-  }>();
-
   useEffect(() => {
-    if (!isFocused || !pickedLat || !pickedLng) {
-      return;
-    }
-
-    const location: PlaceLocation = {
-      latitude: Number(pickedLat),
-      longitude: Number(pickedLng),
-    };
-
-    if (!isValidPlaceLocation(location)) {
-      setLocationError("The selected coordinates are invalid.");
-      return;
-    }
-
-    setPickedLocation(location);
-    onPickLocation(location);
-  }, [pickedLat, pickedLng, onPickLocation, isFocused]);
-
-  useEffect(() => {
+    let isCurrentRequest = true;
     async function handleAddress() {
-      if (!pickedLocation) {
+      if (!isFocused || !pickedLocation) {
         return;
       }
 
@@ -79,14 +54,19 @@ export default function LocationPicker({
           pickedLocation.longitude,
         );
 
-        onAddressFound?.(address);
+        if (isCurrentRequest) {
+          onAddressFound?.(address);
+        }
       } catch (error) {
         console.error("Failed to get address:", error);
       }
     }
 
     void handleAddress();
-  }, [pickedLocation, onAddressFound]);
+    return () => {
+      isCurrentRequest = false;
+    };
+  }, [pickedLocation, onAddressFound, isFocused]);
 
   function openAppSettings() {
     void Linking.openSettings().catch(() => {
@@ -178,7 +158,6 @@ export default function LocationPicker({
         return;
       }
 
-      setPickedLocation(location);
       onPickLocation(location);
     } catch (error: unknown) {
       const message =
