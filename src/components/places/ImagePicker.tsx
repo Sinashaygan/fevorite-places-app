@@ -1,17 +1,19 @@
 import { COLORS } from "@/constants/colors";
 import { launchCameraAsync, useCameraPermissions } from "expo-image-picker";
-import { useState } from "react";
 import { Alert, Image, StyleSheet, Text, View } from "react-native";
 import OutlinedButton from "../ui/OutlinedButton";
 
 type ImagePickerProps = {
+  imageUri: string;
   onImagePicked: (imageUri: string) => void;
 };
 
-export default function ImagePicker({ onImagePicked }: ImagePickerProps) {
+export default function ImagePicker({
+  imageUri,
+  onImagePicked,
+}: ImagePickerProps) {
   const [cameraPermissionInformation, requestPermission] =
     useCameraPermissions();
-  const [pickedImage, setPickedImage] = useState<string | null>(null);
 
   async function verifyPermission() {
     if (cameraPermissionInformation?.granted) {
@@ -61,7 +63,6 @@ export default function ImagePicker({ onImagePicked }: ImagePickerProps) {
         return;
       }
 
-      setPickedImage(imageUri);
       onImagePicked(imageUri);
     } catch (error: unknown) {
       const message =
@@ -75,14 +76,16 @@ export default function ImagePicker({ onImagePicked }: ImagePickerProps) {
   return (
     <View>
       <View style={styles.imagePreview}>
-        {pickedImage ? (
-          <Image source={{ uri: pickedImage }} style={styles.image} />
+        {imageUri ? (
+          <Image source={{ uri: imageUri }} style={styles.image} />
         ) : (
           <Text style={styles.placeholderText}>No image taken yet.</Text>
         )}
       </View>
 
-      <OutlinedButton icon="camera" onPress={takeImageHandler}>Take image</OutlinedButton>
+      <OutlinedButton icon="camera" onPress={takeImageHandler}>
+        Take image
+      </OutlinedButton>
     </View>
   );
 }
