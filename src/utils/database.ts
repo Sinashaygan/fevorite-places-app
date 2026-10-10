@@ -1,8 +1,13 @@
 import type { Place } from "@/types/place";
 import * as SQLite from "expo-sqlite";
 
-type NewPlace = Pick<Place, "title" | "imageUri" | "location"> & {
-  address?: string;
+type PlaceRow = {
+  id: string;
+  title: string;
+  imageUri: string;
+  address: string | null;
+  latitude: number;
+  longitude: number;
 };
 
 const databasePromise = SQLite.openDatabaseAsync("places.db");
@@ -24,11 +29,11 @@ export async function init() {
   return database;
 }
 
-export async function insertPlace(place: NewPlace) {
+export async function insertPlace(place: Omit<Place, "id">) {
   const database = await databasePromise;
 
   if (!place.location) {
-    throw new Error("Cannot insert a place without a location.");
+    throw new Error("Place location is required.");
   }
 
   const result = await database.runAsync(
@@ -50,4 +55,31 @@ export async function insertPlace(place: NewPlace) {
   );
 
   return result.lastInsertRowId;
+}
+
+export async function fetchPlaces(): Promise<Place[]> {
+  const database = await databasePromise;
+
+  const rows = await database.getAllAsync<PlaceRow>(`
+    SELECT
+      id,
+      title,
+      imageUri,
+      address,
+      latitude,
+      longitude
+    FROM places
+    ORDER BY id DESC;
+  `);
+
+  return rows.map((row) => ({
+    id: row.id,
+    title: row.title,
+    imageUri: row.imageUri,
+    address: row.address ?? "Address unavailable",
+    location: {
+      latitude: row.latitude,
+      longitude: row.longitude,
+    },
+  }));
 }
