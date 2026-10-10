@@ -1,4 +1,6 @@
 import IconButton from "@/components/ui/IconButton";
+import { usePlaces } from "@/context/PlacesContext";
+import type { PlaceLocation } from "@/types/place";
 import { router, useNavigation } from "expo-router";
 import { useCallback, useLayoutEffect, useState } from "react";
 import { Alert, StyleSheet } from "react-native";
@@ -8,11 +10,10 @@ import MapView, {
   type Region,
 } from "react-native-maps";
 
-type location = { lat: number; lng: number };
-
 export default function MapScreen() {
-  const navigation = useNavigation()
-  const [selectedLocation, setSelectedLocation] = useState<location | null>();
+  const navigation = useNavigation();
+  const { draft, updateDraft } = usePlaces();
+  const [selectedLocation, setSelectedLocation] = useState<PlaceLocation | null>(draft.location ?? null);
   const region: Region = {
     latitude: 37.78,
     longitude: -122.43,
@@ -24,8 +25,7 @@ export default function MapScreen() {
     const lat = event.nativeEvent.coordinate.latitude;
     const lng = event.nativeEvent.coordinate.longitude;
 
-    console.log("Selected location:", { latitude: lat, longitude: lng });
-    setSelectedLocation({ lat: lat, lng: lng });
+    setSelectedLocation({ latitude: lat, longitude: lng });
   }
 
   const savePickedLocationHandler = useCallback(() => {
@@ -37,14 +37,9 @@ export default function MapScreen() {
       return;
     }
 
-    router.push({
-      pathname: "/add-place",
-      params: {
-        pickedLat: selectedLocation.lat,
-        pickedLng: selectedLocation.lng,
-      },
-    });
-  }, [router, selectedLocation]);
+    updateDraft({ location: selectedLocation });
+    router.back();
+  }, [selectedLocation, updateDraft]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -57,7 +52,7 @@ export default function MapScreen() {
         />
       ),
     });
-  }, [navigation, selectedLocation]);
+  }, [navigation, savePickedLocationHandler]);
 
   return (
     <MapView
@@ -67,10 +62,7 @@ export default function MapScreen() {
     >
       {selectedLocation && (
         <Marker
-          coordinate={{
-            latitude: selectedLocation?.lat,
-            longitude: selectedLocation?.lng,
-          }}
+          coordinate={selectedLocation}
           title="Picked Location"
         />
       )}
