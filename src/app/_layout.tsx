@@ -7,13 +7,14 @@ import { StatusBar } from "expo-status-bar";
 export default function RootLayout() {
   return (
     <>
-      <StatusBar style="dark" />
+      <StatusBar style="light" />
 
       <PlacesProvider>
         <Stack
           screenOptions={{
-            headerStyle: { backgroundColor: COLORS.primary500 },
-            headerTintColor: COLORS.gray700,
+            headerStyle: { backgroundColor: COLORS.gray700 },
+            headerTintColor: COLORS.primary50,
+            headerShadowVisible: false,
             contentStyle: { backgroundColor: COLORS.gray700 },
           }}
         >
