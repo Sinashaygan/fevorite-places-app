@@ -12,7 +12,7 @@ export default function RootLayout() {
       <PlacesProvider>
         <Stack
           screenOptions={{
-            headerStyle: { backgroundColor: COLORS.gray700 },
+            headerStyle: { backgroundColor: COLORS.primary500 },
             headerTintColor: COLORS.primary50,
             headerShadowVisible: false,
             contentStyle: { backgroundColor: COLORS.gray700 },
@@ -34,26 +34,26 @@ export default function RootLayout() {
             }}
           />
 
-        <Stack.Screen
-          name="add-place"
-          options={{
-            title: "Add a New Place",
-          }}
-        />
+          <Stack.Screen
+            name="add-place"
+            options={{
+              title: "Add a New Place",
+            }}
+          />
 
-        <Stack.Screen
-          name="map"
-          options={{
-            title: "Map",
-          }}
-        />
+          <Stack.Screen
+            name="map"
+            options={{
+              title: "Map",
+            }}
+          />
 
-        <Stack.Screen
-          name="place-details"
-          options={{
-            title: "Place Details",
-          }}
-        />
+          <Stack.Screen
+            name="place-details"
+            options={{
+              title: "Place Details",
+            }}
+          />
         </Stack>
       </PlacesProvider>
     </>
