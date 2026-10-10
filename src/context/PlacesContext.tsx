@@ -1,15 +1,14 @@
-import Place from "@/models/place";
 import type { Place as PlaceType } from "@/types/place";
+import { fetchPlaces, init } from "@/utils/database";
 import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from "react";
-
-type NewPlace = Omit<PlaceType, "id">;
 
 type PlaceDraft = {
   title: PlaceType["title"];
@@ -28,7 +27,7 @@ function createEmptyDraft(): PlaceDraft {
 
 type PlacesContextValue = {
   places: PlaceType[];
-  addPlace: (place: NewPlace) => void;
+  addPlace: (place: PlaceType) => void;
   draft: PlaceDraft;
   updateDraft: (changes: Partial<PlaceDraft>) => void;
   resetDraft: () => void;
@@ -40,10 +39,35 @@ export function PlacesProvider({ children }: { children: ReactNode }) {
   const [places, setPlaces] = useState<PlaceType[]>([]);
   const [draft, setDraft] = useState<PlaceDraft>(createEmptyDraft);
 
-  const addPlace = useCallback((place: NewPlace) => {
+  useEffect(() => {
+    let active = true;
+    async function loadPlaces() {
+      try {
+        await init();
+        const savedPlaces = await fetchPlaces();
+        if (active) {
+          setPlaces((currentPlaces) => {
+            const combined = new Map(savedPlaces.map((place) => [place.id, place]));
+            currentPlaces.forEach((place) => combined.set(place.id, place));
+            return [...combined.values()].sort(
+              (first, second) => Number(second.id) - Number(first.id),
+            );
+          });
+        }
+      } catch (error) {
+        console.error("Failed to initialize or load saved places:", error);
+      }
+    }
+    void loadPlaces();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const addPlace = useCallback((place: PlaceType) => {
     setPlaces((currentPlaces) => [
-      new Place(place.title, place.imageUri, place.address, place.location),
-      ...currentPlaces,
+      place,
+      ...currentPlaces.filter((current) => current.id !== place.id),
     ]);
   }, []);
 

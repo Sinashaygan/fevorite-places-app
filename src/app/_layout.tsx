@@ -1,24 +1,10 @@
 import IconButton from "@/components/ui/IconButton";
 import { COLORS } from "@/constants/colors";
 import { PlacesProvider } from "@/context/PlacesContext";
-import { init } from "@/utils/database";
 import { router, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useState } from "react";
-import AppLoading from "expo-app-loading";
 
 export default function RootLayout() {
-  const [dbInitialized, setDbInitialized] = useState(false);
-
-  useEffect(() => {
-    init()
-      .then(() => setDbInitialized(true))
-      .catch((err) => console.log(err));
-  }, []);
-
-  if (!dbInitialized) {
-    <AppLoading />;
-  }
   return (
     <>
       <StatusBar style="light" />
