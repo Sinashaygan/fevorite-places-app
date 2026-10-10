@@ -1,19 +1,32 @@
 import { StyleSheet } from "react-native";
-import MapView from "react-native-maps";
+import MapView, { type MapPressEvent, type Region } from "react-native-maps";
 
 export default function MapScreen() {
-  const region = {
+  const region: Region = {
     latitude: 37.78,
     longitude: -122.43,
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   };
 
-  return <MapView style={styles.container} initialRegion={region}></MapView>;
+  function selectLocationHandler(event: MapPressEvent): void {
+    const lat = event.nativeEvent.coordinate.latitude;
+    const lng = event.nativeEvent.coordinate.longitude;
+
+    console.log("Selected location:", { latitude: lat, longitude: lng });
+  }
+
+  return (
+    <MapView
+      style={styles.map}
+      initialRegion={region}
+      onPress={selectLocationHandler}
+    />
+  );
 }
 
 const styles = StyleSheet.create({
-  container:{
-    flex:1
-  }
+  map: {
+    flex: 1,
+  },
 });
