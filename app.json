@@ -52,7 +52,8 @@
         {
           "locationWhenInUsePermission": "Allow app to use your location while you use the app."
         }
-      ]
+      ],
+      "expo-sqlite"
     ],
     "experiments": {
       "typedRoutes": true,
