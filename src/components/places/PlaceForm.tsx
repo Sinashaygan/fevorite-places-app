@@ -84,7 +84,7 @@ export default function PlaceForm({ onCreatePlace }: PlaceFormProps) {
         />
       </View>
 
-      <ImagePicker onImagePicked={setSelectedImageUri} />
+      <ImagePicker onImagePicked={setSelectedImageUri} imageUri={selectedImageUri}/>
 
       <LocationPicker
         onPickLocation={setSelectedLocation}
