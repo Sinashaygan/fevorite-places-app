@@ -86,7 +86,10 @@ export default function PlaceForm({ onCreatePlace }: PlaceFormProps) {
 
       <ImagePicker onImagePicked={setSelectedImageUri} />
 
-      <LocationPicker onPickLocation={setSelectedLocation} />
+      <LocationPicker
+        onPickLocation={setSelectedLocation}
+        onAddressFound={setEnteredAddress}
+      />
 
       <Pressable
         accessibilityRole="button"

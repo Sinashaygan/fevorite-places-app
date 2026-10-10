@@ -1,12 +1,13 @@
 import { COLORS } from "@/constants/colors";
 import type { PlaceLocation } from "@/types/place";
-import { isValidPlaceLocation } from "@/utils/location";
+import { getAddress, isValidPlaceLocation } from "@/utils/location";
 import {
   Accuracy,
   getCurrentPositionAsync,
   hasServicesEnabledAsync,
   useForegroundPermissions,
 } from "expo-location";
+import { router, useIsFocused, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -19,50 +20,73 @@ import {
 
 import OutlinedButton from "../ui/OutlinedButton";
 import LocationMap from "./LocationMap";
-import { router, useIsFocused, useLocalSearchParams } from "expo-router";
 
 type LocationPickerProps = {
   onPickLocation: (location: PlaceLocation) => void;
+  onAddressFound?: (address: string) => void;
 };
 
 export default function LocationPicker({
   onPickLocation,
+  onAddressFound,
 }: LocationPickerProps) {
   const [locationPermissionInformation, requestPermission] =
     useForegroundPermissions();
+
   const [pickedLocation, setPickedLocation] = useState<PlaceLocation | null>(
     null,
   );
+
   const [isLocating, setIsLocating] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
+
   const isRequestInProgress = useRef(false);
-  const isFocused = useIsFocused()
+  const isFocused = useIsFocused();
+
   const { pickedLat, pickedLng } = useLocalSearchParams<{
     pickedLat?: string;
     pickedLng?: string;
   }>();
 
   useEffect(() => {
-    if (!pickedLat || !pickedLng) {
+    if (!isFocused || !pickedLat || !pickedLng) {
       return;
     }
 
-    if(isFocused && pickedLat && pickedLng){
-      const location: PlaceLocation = {
-        latitude: Number(pickedLat),
-        longitude: Number(pickedLng),
-      };
+    const location: PlaceLocation = {
+      latitude: Number(pickedLat),
+      longitude: Number(pickedLng),
+    };
 
-      if (!isValidPlaceLocation(location)) {
-        setLocationError("The selected coordinates are invalid.");
+    if (!isValidPlaceLocation(location)) {
+      setLocationError("The selected coordinates are invalid.");
+      return;
+    }
+
+    setPickedLocation(location);
+    onPickLocation(location);
+  }, [pickedLat, pickedLng, onPickLocation, isFocused]);
+
+  useEffect(() => {
+    async function handleAddress() {
+      if (!pickedLocation) {
         return;
       }
 
-      setPickedLocation(location);
-      onPickLocation(location);
-    }
-  }, [pickedLat, pickedLng, onPickLocation , isFocused]);
+      try {
+        const address = await getAddress(
+          pickedLocation.latitude,
+          pickedLocation.longitude,
+        );
 
+        onAddressFound?.(address);
+      } catch (error) {
+        console.error("Failed to get address:", error);
+      }
+    }
+
+    void handleAddress();
+  }, [pickedLocation, onAddressFound]);
 
   function openAppSettings() {
     void Linking.openSettings().catch(() => {
@@ -127,6 +151,7 @@ export default function LocationPicker({
 
       if (!servicesEnabled) {
         setLocationError("Location services are turned off.");
+
         Alert.alert(
           "Location services are off",
           "Turn on Location Services in your device settings and try again.",
@@ -135,12 +160,14 @@ export default function LocationPicker({
             { text: "Open Settings", onPress: openAppSettings },
           ],
         );
+
         return;
       }
 
       const result = await getCurrentPositionAsync({
         accuracy: Accuracy.Balanced,
       });
+
       const location: PlaceLocation = {
         latitude: result.coords.latitude,
         longitude: result.coords.longitude,
@@ -158,6 +185,7 @@ export default function LocationPicker({
         error instanceof Error
           ? error.message
           : "Your current location could not be determined.";
+
       setLocationError(message);
       Alert.alert("Location unavailable", message);
     } finally {
@@ -169,7 +197,6 @@ export default function LocationPicker({
   function pickOnMapHandler() {
     router.push("/map");
   }
-
 
   return (
     <View style={styles.container}>
@@ -202,8 +229,9 @@ export default function LocationPicker({
           icon="location"
           onPress={getLocationHandler}
         >
-          {isLocating ? "Locating…" : "Locate User"}
+          {isLocating ? "Locating..." : "Locate User"}
         </OutlinedButton>
+
         {isLocating && (
           <ActivityIndicator
             color={COLORS.primary500}
