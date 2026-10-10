@@ -2,7 +2,7 @@ import type { Place } from "@/types/place";
 import * as SQLite from "expo-sqlite";
 
 type PlaceRow = {
-  id: string;
+  id: number;
   title: string;
   imageUri: string;
   address: string | null;
@@ -29,12 +29,22 @@ export async function init() {
   return database;
 }
 
-export async function insertPlace(place: Omit<Place, "id">) {
-  const database = await databasePromise;
-
+export async function insertPlace(place: Omit<Place, "id">): Promise<number> {
   if (!place.location) {
     throw new Error("Place location is required.");
   }
+
+  const { latitude, longitude } = place.location;
+  if (
+    !Number.isFinite(latitude) ||
+    !Number.isFinite(longitude) ||
+    latitude < -90 || latitude > 90 ||
+    longitude < -180 || longitude > 180
+  ) {
+    throw new Error("Place coordinates are invalid.");
+  }
+
+  const database = await init();
 
   const result = await database.runAsync(
     `
@@ -49,9 +59,9 @@ export async function insertPlace(place: Omit<Place, "id">) {
     `,
     place.title,
     place.imageUri,
-    place.address ?? "Address unavailable",
-    place.location.latitude,
-    place.location.longitude,
+    place.address?.trim() || "Address unavailable",
+    latitude,
+    longitude,
   );
 
   return result.lastInsertRowId;
@@ -73,7 +83,7 @@ export async function fetchPlaces(): Promise<Place[]> {
   `);
 
   return rows.map((row) => ({
-    id: row.id,
+    id: String(row.id),
     title: row.title,
     imageUri: row.imageUri,
     address: row.address ?? "Address unavailable",
